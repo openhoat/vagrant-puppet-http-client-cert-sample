@@ -12,37 +12,7 @@ SSL_GEN_DIR=$SSL_DATA_DIR/gen
 SSL_TEMPLATE_DIR=$SSL_DATA_DIR/templates
 OPENSSL_CONF_TEMPLATE_FILE=$SSL_TEMPLATE_DIR/openssl.cnf.tpl
 
-#
-# CA cert specs
-#
-
-CA_OPENSSL_CONF_FILENAME="ca-openssl.cnf"
-CA_DAYS="3650"
-CA_COUNTRY_NAME="FR"
-CA_STATE_OR_PROVINCE_NAME="Paris"
-CA_LOCALITY_NAME="Paris"
-CA_ORGANIZATION_NAME="My CA"
-CA_COMMON_NAME="vagrant.centos64"
-CA_EMAIL_ADDRESS="myca@headwood.net"
-CA_PASSWORD="mycapassword"
-
-SERVER_OPENSSL_CONF_FILENAME="server-openssl.cnf"
-SERVER_COUNTRY_NAME="FR"
-SERVER_STATE_OR_PROVINCE_NAME="Paris"
-SERVER_LOCALITY_NAME="Paris"
-SERVER_ORGANIZATION_NAME=$CA_ORGANIZATION_NAME
-SERVER_COMMON_NAME=$CA_COMMON_NAME
-SERVER_EMAIL_ADDRESS="myserver@headwood.net"
-SERVER_PASSWORD="myserverpassword"
-
-CLIENT_OPENSSL_CONF_FILENAME="client-openssl.cnf"
-CLIENT_COUNTRY_NAME="FR"
-CLIENT_STATE_OR_PROVINCE_NAME="Paris"
-CLIENT_LOCALITY_NAME="Paris"
-CLIENT_ORGANIZATION_NAME=$CA_ORGANIZATION_NAME
-CLIENT_COMMON_NAME="myclient.net"
-CLIENT_EMAIL_ADDRESS="myclient@headwood.net"
-CLIENT_PASSWORD="myclientpassword"
+. $SSL_DATA_DIR/cert.conf
 
 #-----------------------------------------------------------------------------------------------------------
 

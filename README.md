@@ -2,6 +2,10 @@
 
 Vagrant puppet template to build an apache configuration with mutual certificate authentication on cent 6.4 x64
 
+## Goal
+
+Automate the building of a web server that implements mutual autentication with certificates
+
 ## Prerequisite
 
 - A linux system with VirtualBox and vagrant packages installed
@@ -28,12 +32,13 @@ Should return a sample hello web page from the SSL apache server.
 - Vagrant :
   - Downloads the base box (accounts : root/vagrant, vagrant/vagrant)
   - Customizes the vm
-  - Executes a shell to install puppet and puppet modules
+  - Install puppet and puppet modules
 - Puppet :
   - Define iptables rules
-  - Create certificate authority (have a look at ./bin/create-certificates to match your needs)
+  - Create certificate authority (have a look at [cert.conf](https://github.com/openhoat/vagrant-puppet-http-client-cert-sample/tree/master/ssl-data/cert.conf) to match your needs)
   - Create server certificate
   - Create client certificate
   - Configure and start apache
+
 
 Enjoy !
