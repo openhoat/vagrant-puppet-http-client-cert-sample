@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+puppet apply /vagrant/puppet/manifests/main.pp \
+	--hiera_config /vagrant/hiera.yaml \
+	--modulepath "/etc/puppet/modules:/vagrant/puppet/modules" \
+	--verbose

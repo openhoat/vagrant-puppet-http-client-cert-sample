@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+HOSTNAME="vagrant.centos64"
+
+# 
+# Prerequisite : HOSTNAME value should resolve to 127.0.0.1, add it in /etc/hosts
+#
+
+curl -i http://$HOSTNAME:3000

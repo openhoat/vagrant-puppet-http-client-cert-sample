@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+
+#
+# Bootstrap on CentOS 6.x
+#
+
+set -e
+
+if [ "$EUID" -ne "0" ]; then
+  echo "This script must be run as root." >&2
+  exit 1
+fi
+
+function installPuppet {
+	if rpm -q puppet > /dev/null 2>&1; then
+		echo "Puppet is already installed"
+	else
+		if rpm -q puppetlabs-release > /dev/null 2>&1; then
+			echo "Puppetlabs yum repo is already installed"
+		else
+			echo "Installing puppetlabs yum repo"
+			rpm -ivh http://yum.puppetlabs.com/el/6/products/x86_64/puppetlabs-release-6-7.noarch.rpm
+		fi
+		echo "Installing puppet"
+		yum install -y puppet
+	fi
+}
+
+function installPuppetModule {
+	module=$1
+	if puppet module list | grep $module > /dev/null 2>&1; then
+		echo "Puppet module $module is already installed"
+	else
+		echo "Installing puppet module $module"
+		puppet module install $module
+	fi
+}
+
+installPuppet
+
+installPuppetModule puppetlabs-apache
+installPuppetModule puppetlabs-firewall
+installPuppetModule spiette-selinux
+
+echo "Done."

@@ -1,0 +1,144 @@
+#!/usr/bin/env bash
+
+THIS_DIR_SCRIPT=$(dirname $0)
+ROOT_DIR=$(cd $THIS_DIR_SCRIPT/..;pwd)
+
+. $THIS_DIR_SCRIPT/include/functions
+
+#-----------------------------------------------------------------------------------------------------------
+
+SSL_DATA_DIR=$ROOT_DIR/ssl-data
+SSL_GEN_DIR=$SSL_DATA_DIR/gen
+SSL_TEMPLATE_DIR=$SSL_DATA_DIR/templates
+OPENSSL_CONF_TEMPLATE_FILE=$SSL_TEMPLATE_DIR/openssl.cnf.tpl
+
+#
+# CA cert specs
+#
+
+CA_OPENSSL_CONF_FILENAME="ca-openssl.cnf"
+CA_DAYS="3650"
+CA_COUNTRY_NAME="FR"
+CA_STATE_OR_PROVINCE_NAME="Paris"
+CA_LOCALITY_NAME="Paris"
+CA_ORGANIZATION_NAME="My CA"
+CA_COMMON_NAME="vagrant.centos64"
+CA_EMAIL_ADDRESS="myca@headwood.net"
+CA_PASSWORD="mycapassword"
+
+SERVER_OPENSSL_CONF_FILENAME="server-openssl.cnf"
+SERVER_COUNTRY_NAME="FR"
+SERVER_STATE_OR_PROVINCE_NAME="Paris"
+SERVER_LOCALITY_NAME="Paris"
+SERVER_ORGANIZATION_NAME=$CA_ORGANIZATION_NAME
+SERVER_COMMON_NAME=$CA_COMMON_NAME
+SERVER_EMAIL_ADDRESS="myserver@headwood.net"
+SERVER_PASSWORD="myserverpassword"
+
+CLIENT_OPENSSL_CONF_FILENAME="client-openssl.cnf"
+CLIENT_COUNTRY_NAME="FR"
+CLIENT_STATE_OR_PROVINCE_NAME="Paris"
+CLIENT_LOCALITY_NAME="Paris"
+CLIENT_ORGANIZATION_NAME=$CA_ORGANIZATION_NAME
+CLIENT_COMMON_NAME="myclient.net"
+CLIENT_EMAIL_ADDRESS="myclient@headwood.net"
+CLIENT_PASSWORD="myclientpassword"
+
+#-----------------------------------------------------------------------------------------------------------
+
+echo "Prepare files"
+rm -rf $SSL_GEN_DIR
+mkdir -p $SSL_GEN_DIR/certs $SSL_GEN_DIR/private $SSL_GEN_DIR/newcerts
+touch $SSL_GEN_DIR/index.txt
+echo 1000 > $SSL_GEN_DIR/serial
+
+#-----------------------------------------------------------------------------------------------------------
+
+OPENSSL_CONF_FILE=$SSL_GEN_DIR/$CA_OPENSSL_CONF_FILENAME
+echo "Create $OPENSSL_CONF_FILE"
+COUNTRY_NAME=$CA_COUNTRY_NAME
+STATE_OR_PROVINCE_NAME=$CA_STATE_OR_PROVINCE_NAME
+LOCALITY_NAME=$CA_LOCALITY_NAME
+ORGANIZATION_NAME=$CA_ORGANIZATION_NAME
+COMMON_NAME=$CA_COMMON_NAME
+EMAIL_ADDRESS=$CA_EMAIL_ADDRESS
+evalTemplate $OPENSSL_CONF_TEMPLATE_FILE $OPENSSL_CONF_FILE
+
+#-----------------------------------------------------------------------------------------------------------
+
+OPENSSL_CONF_FILE=$SSL_GEN_DIR/$SERVER_OPENSSL_CONF_FILENAME
+TEMPLATE_FILE=$SSL_TEMPLATE_DIR/$OPENSSL_CONF_TEMPLATE_FILE
+echo "Create $OPENSSL_CONF_FILE"
+COUNTRY_NAME=$SERVER_COUNTRY_NAME
+STATE_OR_PROVINCE_NAME=$SERVER_STATE_OR_PROVINCE_NAME
+LOCALITY_NAME=$SERVER_LOCALITY_NAME
+ORGANIZATION_NAME=$SERVER_ORGANIZATION_NAME
+COMMON_NAME=$SERVER_COMMON_NAME
+EMAIL_ADDRESS=$SERVER_EMAIL_ADDRESS
+evalTemplate $OPENSSL_CONF_TEMPLATE_FILE $OPENSSL_CONF_FILE
+
+#-----------------------------------------------------------------------------------------------------------
+
+OPENSSL_CONF_FILE=$SSL_GEN_DIR/$CLIENT_OPENSSL_CONF_FILENAME
+TEMPLATE_FILE=$SSL_TEMPLATE_DIR/$CLIENT_OPENSSL_CONF_FILENAME.tpl
+echo "Create $OPENSSL_CONF_FILE"
+COUNTRY_NAME=$CLIENT_COUNTRY_NAME
+STATE_OR_PROVINCE_NAME=$CLIENT_STATE_OR_PROVINCE_NAME
+LOCALITY_NAME=$CLIENT_LOCALITY_NAME
+ORGANIZATION_NAME=$CLIENT_ORGANIZATION_NAME
+COMMON_NAME=$CLIENT_COMMON_NAME
+EMAIL_ADDRESS=$CLIENT_EMAIL_ADDRESS
+evalTemplate $OPENSSL_CONF_TEMPLATE_FILE $OPENSSL_CONF_FILE
+
+#-----------------------------------------------------------------------------------------------------------
+
+echo "Create CA"
+openssl req -batch -passout pass:$CA_PASSWORD -new -x509 -days $CA_DAYS \
+  -extensions v3_ca -keyout $SSL_GEN_DIR/private/ca-key.pem \
+  -out $SSL_GEN_DIR/certs/ca-cert.pem \
+  -config $SSL_GEN_DIR/ca-openssl.cnf
+
+#-----------------------------------------------------------------------------------------------------------
+
+echo "Generate server SSL Request"
+openssl req -batch -passout pass:$SERVER_PASSWORD -new -nodes \
+  -out $SSL_GEN_DIR/server-req.pem \
+  -keyout $SSL_GEN_DIR/private/server-key.pem \
+  -config $SSL_GEN_DIR/server-openssl.cnf
+
+#-----------------------------------------------------------------------------------------------------------
+
+echo "Generate server SSL Certificate"
+openssl ca -batch -key $CA_PASSWORD \
+  -config $SSL_GEN_DIR/server-openssl.cnf \
+  -out $SSL_GEN_DIR/certs/server-cert.pem \
+  -infiles $SSL_GEN_DIR/server-req.pem
+
+#-----------------------------------------------------------------------------------------------------------
+
+echo "Generate client SSL Request"
+openssl req -batch -passout pass:$CA_PASSWORD -new -nodes \
+  -out $SSL_GEN_DIR/client-req.pem \
+  -keyout $SSL_GEN_DIR/private/client-key.pem \
+  -config $SSL_GEN_DIR/client-openssl.cnf
+
+#-----------------------------------------------------------------------------------------------------------
+
+echo "Generate client SSL Certificate"
+openssl ca -batch -key $CA_PASSWORD \
+  -config $SSL_GEN_DIR/client-openssl.cnf \
+  -out $SSL_GEN_DIR/certs/client-cert.pem \
+  -infiles $SSL_GEN_DIR/client-req.pem
+
+#-----------------------------------------------------------------------------------------------------------
+
+echo "Generate client browser Certificate"
+openssl pkcs12 -export -clcerts -password pass:$CLIENT_PASSWORD \
+  -in $SSL_GEN_DIR/certs/client-cert.pem \
+  -inkey $SSL_GEN_DIR/private/client-key.pem \
+  -out $SSL_GEN_DIR/client.p12
+
+#-----------------------------------------------------------------------------------------------------------
+
+echo "Done."
+

@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+function evalTemplate {
+TEMPLATE_FILE=$1
+RESULT_FILE=$2
+eval "cat << EOF
+$( < $TEMPLATE_FILE)
+EOF
+" > $RESULT_FILE
+}
