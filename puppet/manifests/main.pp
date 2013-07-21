@@ -25,7 +25,7 @@ class { 'selinux':
 }
 
 package { "openssl":
-    ensure => "installed"
+  ensure => "installed"
 }
 exec { "create_certificates":
 	command 	=> "create-certificates",
@@ -36,14 +36,14 @@ exec { "create_certificates":
 
 class { 'apache': }
 apache::vhost { 'non ssl host':
-	servername => 'vagrant.centos64',
-	port			 => 80,
-  docroot    => '/vagrant/www-root',
+	servername      => 'vagrant.centos64',
+	port			      => 80,
+  docroot         => '/vagrant/www-root',
 }
 apache::vhost { 'ssl host':
 	servername      => 'vagrant.centos64',
 	port			      => 443,
-  docroot         => '/vagrant/sample-webapp',
+  docroot         => '/vagrant/www-root',
 	ssl             => true,
   ssl_cert        => '/vagrant/ssl-data/gen/certs/server-cert.pem',
   ssl_key         => '/vagrant/ssl-data/gen/private/server-key.pem',
