@@ -10,10 +10,13 @@ Vagrant puppet template to build an apache configuration with mutual certificate
 
 ## Usage
 
+    $ cd vagrant-puppet-http-client-cert-sample
     $ vagrant up
     $ ./bin/test-https
 
 Should return a sample hello web page from the SSL apache server.
+
+    $ vagrant halt
 
 ## Browser usage
 
@@ -23,7 +26,7 @@ Should return a sample hello web page from the SSL apache server.
 ## Process description
 
 - Vagrant :
-  - Downloads the base box
+  - Downloads the base box (accounts : root/vagrant, vagrant/vagrant)
   - Customizes the vm
   - Executes a shell to install puppet and puppet modules
 - Puppet :

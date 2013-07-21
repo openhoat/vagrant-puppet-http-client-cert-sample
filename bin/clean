@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+THIS_DIR_SCRIPT=$(dirname $0)
+ROOT_DIR=$(cd $THIS_DIR_SCRIPT/..;pwd)
+SSL_DATA_DIR=$ROOT_DIR/ssl-data
+SSL_GEN_DIR=$SSL_DATA_DIR/gen
+
+rm -rf $SSL_GEN_DIR
