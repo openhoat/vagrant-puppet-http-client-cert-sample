@@ -1,7 +1,7 @@
 Vagrant::Config.run do |config|
 
 	config.vm.box = "http-client-cert-sample"
-	config.vm.box_url = "~/Documents/Octo/Dropbox/Public/vagrant-boxes/centos64-x64-base.box"
+	config.vm.box_url = "https://dl.dropboxusercontent.com/u/188949218/vagrant-boxes/centos64-x64-base.box"
 
 #	config.vm.boot_mode = :gui
 
