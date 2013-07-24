@@ -11,6 +11,7 @@ Automate the building of a web server that implements mutual autentication with 
 - A linux system with VirtualBox and vagrant packages installed
 - Ensure your /etc/hosts has a vagrant.centos64 entry that resolves to 127.0.0.1
 - Ensure following ports are free : 2222, 3000 and 3001
+- To run the test, shunit2 package is needed
 
 ## Usage
 
