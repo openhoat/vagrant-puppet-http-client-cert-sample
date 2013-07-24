@@ -16,9 +16,9 @@ Automate the building of a web server that implements mutual autentication with 
 
     $ cd vagrant-puppet-http-client-cert-sample
     $ vagrant up
-    $ ./bin/test-https
+    $ ./bin/run-tests
 
-Should return a sample hello web page from the SSL apache server.
+Should connect to the server with http and https and check status code 200.
 
     $ vagrant halt
 
