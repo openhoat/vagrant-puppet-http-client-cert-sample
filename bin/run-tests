@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+
+#
+# test http and https vagrant-puppet-http-client-cert-sample server
+# 
+# Prerequisite : 
+#   - shunit2 package installed
+#   - HOSTNAME value should resolve to 127.0.0.1, add it in /etc/hosts
+#
+
+THIS_DIR_SCRIPT=$(dirname $0)
+ROOT_DIR=$(cd $THIS_DIR_SCRIPT/..;pwd)
+SSL_DATA_DIR=$ROOT_DIR/ssl-data
+SSL_GEN_DIR=$SSL_DATA_DIR/gen
+
+HOSTNAME="vagrant.centos64"
+
+testHttp()
+{
+  httpStatusCode=$(curl -sL -w "%{http_code}" http://$HOSTNAME:3000 -o /dev/null)
+  assertEquals $httpStatusCode 200
+}
+
+testHttps()
+{
+  httpStatusCode=$(curl -sL -w "%{http_code}" --cacert $SSL_GEN_DIR/certs/ca-cert.pem \
+    --key $SSL_GEN_DIR/private/client-key.pem \
+    --cert $SSL_GEN_DIR/certs/client-cert.pem \
+    https://$HOSTNAME:3001 -o /dev/null)
+  assertEquals $httpStatusCode 200
+}
+
+# load and run shUnit2
+[ -n "${ZSH_VERSION:-}" ] && SHUNIT_PARENT=$0
+. /usr/share/shunit2/shunit2
